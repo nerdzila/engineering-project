@@ -28,4 +28,4 @@ La evaluación tendra la siguiente forma:
 1. Back End: 35%
 2. Front End: 35%
 3. Estructura y legilibilidad del código, incluyendo el uso de buenas prácticas: 30%
-4. Bonus points: 10% extra.
+4. Bonus points: 20% extra (10% unit tests, 10% deployment en la nube).
