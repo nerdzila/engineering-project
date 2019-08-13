@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request, render_template
 from flask_httpauth import HTTPBasicAuth
-from db import Car, User, database_proxy, InvalidPassword
-from coord import Location
+from model import Car, User, database_proxy, InvalidPassword, Location
 from peewee import SqliteDatabase, DoesNotExist, IntegrityError
 from playhouse.shortcuts import model_to_dict
 

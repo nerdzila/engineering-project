@@ -1,7 +1,6 @@
 import pytest
 from os import remove
-from db import User, Car, InvalidPassword, database_proxy
-from coord import Location
+from model import User, Car, InvalidPassword, database_proxy, Location
 from peewee import SqliteDatabase, DoesNotExist, IntegrityError
 
 try:
