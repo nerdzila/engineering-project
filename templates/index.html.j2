@@ -27,7 +27,7 @@
             {% endfor %}
         ];
         var carPoly = cars.map(car => car.latlong);
-        var mymap = L.map('mapid').setView([19.26, -99.8], 13);
+        var mymap = L.map('mapid').setView([19.26, -99.8], 10);
 
         L.tileLayer(
             'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
@@ -40,20 +40,21 @@
         )
         .addTo(mymap);
 
-        mymap.fitBounds(L.polygon(carPoly).getBounds());
+        if (carPoly.length) {
+            mymap.fitBounds(L.polygon(carPoly).getBounds());
+        }
 
-
-    for (const car of cars) {
-        L.marker(car.latlong)
-        .bindTooltip(
-            car.license_plate,
-            {
-                permanent: true,
-                direction: 'right'
-            }
-        )
-        .addTo(mymap);
-    }
+        for (const car of cars) {
+            L.marker(car.latlong)
+            .bindTooltip(
+                car.license_plate,
+                {
+                    permanent: true,
+                    direction: 'right'
+                }
+            )
+            .addTo(mymap);
+        }
     </script>
 </body>
 </html>
