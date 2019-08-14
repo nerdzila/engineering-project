@@ -5,6 +5,9 @@ from peewee import SqliteDatabase, DoesNotExist, IntegrityError
 from playhouse.shortcuts import model_to_dict
 
 
+# ============================================================================
+# SETUP
+# ============================================================================
 database = SqliteDatabase('data/dev.db')
 database_proxy.initialize(database)
 
@@ -12,6 +15,42 @@ app = Flask(__name__)
 auth = HTTPBasicAuth()
 
 
+# ============================================================================
+# HELPERS
+# ============================================================================
+class BadApiRequest(Exception):
+    pass
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return 'Not found', 404
+
+
+@app.errorhandler(BadApiRequest)
+def handle_invalid_api_requests(e):
+    return json_response(str(e), success=False), 400
+
+
+def json_response(result, success=True):
+    return jsonify({
+        'success': success,
+        'result': result
+    })
+
+
+def validate_json_request(request, required_fields=[]):
+    if not request.json:
+        raise BadApiRequest('Request must contain JSON payload')
+
+    for field in required_fields:
+        if field not in request.json:
+            raise BadApiRequest(f'Field "{field}" missing')
+
+
+# ============================================================================
+# AUTHENTICATION
+# ============================================================================
 @auth.verify_password
 def verify_password(username, password):
     try:
@@ -21,11 +60,9 @@ def verify_password(username, password):
     return True
 
 
-@app.errorhandler(404)
-def not_found(error):
-    return 'Not found', 404
-
-
+# ============================================================================
+# FRONTEND
+# ============================================================================
 @app.route('/')
 @auth.login_required
 def index():
@@ -34,28 +71,24 @@ def index():
     return render_template('index.html.j2', cars=cars)
 
 
+# ============================================================================
+# API
+# ============================================================================
 @app.route('/api/cars', methods=['GET'])
 @auth.login_required
 def get_cars():
     user = User.get(User.username == auth.username())
     cars = [car for car in Car.find_user_cars(user).dicts()]
-    return jsonify(cars)
+    return json_response(cars)
 
 
 @app.route('/api/cars', methods=['POST'])
 @auth.login_required
 def create_car():
     user = User.get(User.username == auth.username())
-    if not request.json:
-        return 'Request must be JSON', 400
 
     required_fields = ('license_plate', 'latitude', 'longitude')
-
-    for field in required_fields:
-        if field not in request.json:
-            return f'Field "{field}" missing', 400
-    if 'license_plate' not in request.json:
-        return 'missing license plate', 400
+    validate_json_request(request, required_fields=required_fields)
 
     try:
         location = Location.create_from_string(
@@ -63,7 +96,7 @@ def create_car():
             request.json['longitude']
         )
     except ValueError as e:
-        return str(e), 400
+        raise BadApiRequest(str(e))
 
     try:
         car = Car.create_with_user(
@@ -72,11 +105,11 @@ def create_car():
             location
         )
     except IntegrityError:
-        return 'License plates already in use', 400
+        raise BadApiRequest('Car already exists')
     except ValueError as e:
-        return str(e), 400
+        raise BadApiRequest(str(e))
 
-    return jsonify(model_to_dict(car, recurse=False))
+    return json_response(model_to_dict(car, recurse=False))
 
 
 @app.route('/api/cars/<license_plate>', methods=['PUT'])
@@ -87,16 +120,10 @@ def update_car(license_plate):
     try:
         car = Car.find_car_by_plate(user, license_plate)
     except DoesNotExist:
-        return 'Car not found', 400
-
-    if not request.json:
-        return 'Request must be JSON', 400
+        raise BadApiRequest('Car not found')
 
     required_fields = ('latitude', 'longitude')
-
-    for field in required_fields:
-        if field not in request.json:
-            return f'Field "{field}" missing', 400
+    validate_json_request(request, required_fields=required_fields)
 
     try:
         location = Location.create_from_string(
@@ -104,11 +131,11 @@ def update_car(license_plate):
             request.json['longitude']
         )
     except ValueError as e:
-        return str(e), 400
+        raise BadApiRequest(str(e))
 
     car.update_location(location)
 
-    return jsonify(model_to_dict(car, recurse=False))
+    return json_response(model_to_dict(car, recurse=False))
 
 
 @app.route('/api/cars/<license_plate>', methods=['DELETE'])
@@ -119,10 +146,10 @@ def delete_car(license_plate):
     try:
         car = Car.find_car_by_plate(user, license_plate)
     except DoesNotExist:
-        return 'Car not found', 400
+        raise BadApiRequest('Car not found')
 
-    car.delete_instance()
-    return jsonify({'deleted': True})
+    num_deleted = car.delete_instance()
+    return json_response({'cars_deleted': num_deleted})
 
 
 if __name__ == '__main__':
