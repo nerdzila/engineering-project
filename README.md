@@ -31,11 +31,11 @@ El otro es `user2:password2` y no tiene ningún auto registrado.
 
 ## Organización del proyecto
 
-`model.py` contiene el código de manejo de autos y usuarios, `test_model.py` contiene las pruebas para dicho código.
+* `model.py` contiene el código de manejo de autos y usuarios, `test_model.py` contiene las pruebas para dicho código.
 
-`app.py` contiene la aplicación de `flask`, ahí se encuentran tanto la aplicación web como el API.
+* `app.py` contiene la aplicación de `flask`, ahí se encuentran tanto la aplicación web como el API.
 
-En `/data` se guardan las bases de datos SQLite del proyecto.
+* En `/data` se guardan las bases de datos SQLite del proyecto.
 
 
 ## API
@@ -76,6 +76,7 @@ Actualizar ubicación:
 ```curl -u user1:password1 -i -H "Content-Type: application/json" -X PUT -d '{"latitude": 19.286492, "longitude": -98.997679}' http://127.0.0.1:5000/api/cars/LOL1337```
 
 Borrar auto:
+
 ```curl -u user1:password1 -X DELETE http://127.0.0.1:5000/api/cars/LOL1337```
 
 
