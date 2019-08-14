@@ -5,12 +5,12 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
-pytest = "*"
 
 [packages]
 peewee = "*"
 flask = "*"
 flask-httpauth = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.7"
