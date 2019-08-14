@@ -96,12 +96,13 @@ class TestUsers:
     def test_signup(self):
         new_user = User.signup('user_new', 'password_new')
         assert new_user.id is not None
-        auth_user = User.authenticate('user_new', 'password_new')
-        assert new_user.id == auth_user.id
+        User.authenticate('user_new', 'password_new')
+        expected_user = User.get(User.username == 'user_new')
+        assert expected_user.id == new_user.id
 
     def test_auth_valid(self):
-        auth_user = User.authenticate('user2', 'password2')
-        assert auth_user is not None
+        # Must not raise an exception
+        User.authenticate('user2', 'password2')
 
     def test_auth_invalid_user(self):
         with pytest.raises(DoesNotExist):
@@ -130,6 +131,9 @@ class TestCars:
     def test_find_cars_by_user(self, default_user, default_user_cars):
         found_ids = set(car.id for car in Car.find_user_cars(default_user))
         assert set(car.id for car in default_user_cars) == found_ids
+
+    def test_find_empty_car_list(self, empty_user):
+        assert len(Car.find_user_cars(empty_user)) == 0
 
     def test_find_car_by_plate(self, default_user, default_car):
         found_car = Car.find_car_by_plate(default_user,
