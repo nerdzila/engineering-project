@@ -9,19 +9,25 @@ Requerimientos:
 * `make`
 * [pipenv](https://docs.pipenv.org/en/latest/install/#installing-pipenv)
 
-Creación de entorno local:
+Creación de entorno local (instala dependencias y crea base de datos de ejemplo):
 
 ```make devenvironment```
 
 Ejecutar pruebas:
 
-```make test1```
+```make test```
 
 Iniciar servidor:
 
 ```make server```
 
-Ésto levanta un servidor http://localhost:5000/, ahí se localizan tanto el frontend como el API.
+Ésto levanta la aplicación web en http://127.0.0.1:5000/, y el API en http://127.0.0.1:5000/api/ las credenciales de los usuarios de ejemplo están en la siguiente sección.
+
+## Credenciales
+
+Por defecto se inicializa una base de datos con dos usuarios, uno es `user1:password1` y tiene algunos autos registrados.
+
+El otro es `user2:password2` y no tiene ningún auto registrado.
 
 ## Organización del proyecto
 
@@ -31,11 +37,6 @@ Iniciar servidor:
 
 En `/data` se guardan las bases de datos SQLite del proyecto.
 
-## Credenciales
-
-Por defecto se inicializa una base de datos con dos usuarios, uno es `user1:password1` y tiene algunos autos registrados.
-
-El otro es `user2:password2` y no tiene ningún auto registrado.
 
 ## API
 El API presenta los siguientes endpoints:
@@ -78,7 +79,7 @@ Borrar auto:
 ```curl -u user1:password1 -X DELETE http://127.0.0.1:5000/api/cars/LOL1337```
 
 
-## Especificación original
+## Especificación
 ### Aplicación de Rastreo
 
 El objetivo es construir una applicación web donde se administre una flotilla de vehiculos y se pueda ver su posición.
